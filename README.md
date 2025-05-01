@@ -111,4 +111,4 @@ This project includes:
 3. **Features**
    - Geolocation support
    - 7-day weather forecast
-   - Responsive design
+   - Responsive design.
