@@ -2,29 +2,45 @@ name: Weather App CI/CD
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [main, master]
   pull_request:
-    branches: [ main, master ]
+    branches: [main, master]
 
 jobs:
   test:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
-    
-    - name: Use Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '16.x'
-        
-    - name: Install dependencies
-      run: npm ci
-      
-    - name: Run tests
-      run: npm test
-      env:
-        OPENWEATHER_API_KEY: ${{ secrets.OPENWEATHER_API_KEY }}
-        
-    - name: Check test coverage
-      run: npm test -- --coverage --coverageThreshold='{"global":{"statements":75,"branches":75,"functions":75,"lines":75}}'
+      - uses: actions/checkout@v3
+
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "16.x"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
+        env:
+          OPENWEATHER_API_KEY: ${{ secrets.OPENWEATHER_API_KEY }}
+
+      - name: Check test coverage
+        run: npm test -- --coverage --coverageThreshold='{"global":{"statements":75,"branches":75,"functions":75,"lines":75}}'
+
+  deploy:
+    needs: test
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Deploy to Vercel
+        uses: amondnet/vercel-action@v20
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          vercel-args: "--prod"
